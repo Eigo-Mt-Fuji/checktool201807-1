@@ -1,0 +1,15 @@
+prod:
+  children:
+    official:
+      hosts:
+        server1:
+        server5:
+    api:
+      hosts:
+        server1:
+        server2:
+    operation-host:
+      hosts:
+        server1:
+        server2:
+
