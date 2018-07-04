@@ -46,19 +46,30 @@ $ aws --profile devops ec2 --region ap-northeast-1 describe-instances --filter "
 * check-ec2-host.pyを実行
 
 ```
-$ python3 check-ec2-host.py prod.children ./inventory.yml ./describe-instances.json
-Loading Category official...
-Loading Category api...
-Loading Category operation-host...
-Ansible yamlに登録されたリスト
-server1
-server5
-server1
-server2
-server1
-server2
-エラー: 実行中ホストではない server5 がhostsに含まれています
-
+$ python3 check-ec2-host.py prod.children ./inventory.yml describe-instances.json
+# check-ec2-host 2018-07-04 22:38:19
+## Inventory List
+* Loading Group official...
+	* Loading Category hosts...
+		* server1
+		* server2
+* Loading Group api...
+	* Loading Category hosts...
+		* server1
+		* server2
+* Loading Group operation-host...
+	* Loading Category hostsother...
+		* server1
+		* server3
+## Running EC2 List
+* server1
+* server2
+## 比較結果
+### Inventory ( not in EC2 )
+* server3
+### EC2 ( not in inventory )
+* なし
+差分を検知しました
 $ echo $?
 1
 ```
