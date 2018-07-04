@@ -36,7 +36,7 @@ prod:
 * ec2instanceを取得(profile, regionは適宜読み替え)
 
 ```
-$ aws --profile devops ec2 --region ap-northeast-1 describe-instances --filter "Name=instance-state-name,Values=running" --query 'Reservations[].Instances[?State.Name==`running`] | [] . Tags[?Key==`Name`].Value|[0]' > describe-instances.json
+$ aws --profile devops ec2 --region ap-southeast-1 describe-instances --filter "Name=instance-state-name,Values=running" --query 'Reservations[].Instances[] | [] . Tags[?Key==`Name`].Value|[0]' > describe-instances.json
 [
     "server1",
     "server2",
