@@ -22,13 +22,13 @@ prod:
     official:
       hosts:
         server1:
-        server5:
+        server2:
     api:
       hosts:
         server1:
-        server2:
+        server3:
     operation-host:
-      hosts:
+      hostsother:
         server1:
         server2:
 ```
