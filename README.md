@@ -103,11 +103,9 @@ $ python3 check-ec2-host.py stage.children ./inventory.yml describe-instances.js
 ### Inventory ( not in EC2 )
 * なし
 ### EC2 ( not in inventory )
-```
 [
 	"invalid-host"
 ]
-```
 差分を検知しました
 
 $ echo $?
@@ -135,5 +133,4 @@ $ export PATH=~/.local/bin:~/Library/Python/3.7/bin:$PATH
 $ pip3 install --user --upgrade awscli
 $ brew upgrade awscli
 ```
-
 
