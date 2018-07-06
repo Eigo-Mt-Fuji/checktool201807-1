@@ -1,15 +1,30 @@
-prod:
+stage:
   children:
-    official:
+    test:
       hosts:
         server1:
         server2:
-    api:
+    operation:
       hosts:
-        server1:
         server3:
-    operation-host:
-      hostsother:
-        server1:
-        server2:
+        server4:
+    api:
+      children:
+        official2:
+          hosts:
+            api1:  { server_name: "test_1" }
+            api2:  { server_name: "test_2" }
+            api3: { server_name: "test_3" }
+        replica:
+          vars:
+            server_name: "test4"
+          hosts:
+            api4:
+            api5:
+        batch:
+          hosts:
+            batch1:
+    proxy:
+      hosts:
+        proxy1:
 

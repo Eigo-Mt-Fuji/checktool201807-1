@@ -2,11 +2,43 @@ import sys
 import yaml
 import json
 import datetime
+import ast
 
 base_key = sys.argv[1] # 'prod.children'
 inventory_file = sys.argv[2] # ./inventory.yml
 running_instance_file = sys.argv[3] # ./describe-instances.json
+hosts_json_key = "server_name"
 dt_now = datetime.datetime.now()
+
+def is_json(value):
+
+    try:
+        data = json.dumps(value)
+        res = json.loads(data)
+
+        if res is None:
+          return False
+
+        return res
+    except (ValueError, TypeError, AttributeError) as e:
+        print(e)
+        return False
+
+def find_inventory_hosts_path(target_path, data, path_list):
+  res = dparse(data, target_path, ".")
+    
+  if res is {} or res is None:
+    return
+
+  else:
+    for key in res:
+      next_path = target_path +"." + key
+
+      if key == "hosts":
+        path_list.append(next_path)
+      else:
+        if(type(res.get(key)) is dict):
+          find_inventory_hosts_path(next_path, data, path_list)
 
 def dparse(dic, p, sep=".", default=None):
     lis = p.split(sep)
@@ -17,23 +49,41 @@ def dparse(dic, p, sep=".", default=None):
             return dic.get(lis[0], default)
         else:
             return _(dic.get(lis[0], {}), lis[1:], sep, default)
+
     return _(dic, lis, sep=sep, default=None)
 
 print ("\033[m" + "# check-ec2-host " + dt_now.strftime("%Y-%m-%d %H:%M:%S"))
 print ("## Inventory List")
 inventory_list = []
+
 with open(inventory_file) as f:
   data = yaml.load(f)
-  groups = dparse(data, base_key, ".")
-  for g in groups:
-    print("* Loading Group " + g + "...")
-    categories = dparse(data, base_key + "." + g, ".")
-    for c in categories:
-       print("\t* Loading Category " + c + "...")
-       hosts = dparse(data, base_key + "." + g + "." + c, ".")
-       inventory_list.extend(hosts.keys())
-       for h in hosts:
-         print ("\t\t* " + h)
+
+  out_hosts_path_list = []
+  find_inventory_hosts_path(base_key, data, out_hosts_path_list)
+
+  for p in out_hosts_path_list:
+    hosts = dparse(data, p, ".")
+    for key in hosts.keys():
+
+      json_result = is_json(hosts.get(key))
+
+      if json_result is False:
+        print ("* " + p + "." + key)
+        inventory_list.append(key)
+
+      else:
+        server_name = json_result.get(hosts_json_key)
+
+        if server_name is not None:
+          inventory_list.append(server_name)
+          print ("* " + p + "." + key + "." + server_name)
+        else:
+          print ("\033[91m" + "エラー：hostsに想定した書式({'" + hosts_json_key + "': '<値>'})と異なるJSONが含まれています。" )
+          print (hosts.get(key))
+          print ("\033[m" + "")
+          sys.exit(1)
+
 f.closed
 
 with open(running_instance_file, 'r') as f:
@@ -56,17 +106,24 @@ with open(running_instance_file, 'r') as f:
   print("## 比較結果")  
   print("### Inventory ( not in EC2 )")
   if len(inventory_not_in_ec2) != 0:
-    for h in inventory_not_in_ec2:
-      print ("* " + h)
+    print ("```")
+    print ("[")
+    print ("\t\"" + "\",\n\t\"".join(inventory_not_in_ec2) + "\"")
+    print ("]")
+    print ("```")
   else:
     print ("* なし")
 
   print("### EC2 ( not in inventory )")
   if len(ec2_not_in_inventory) != 0:
-    for h in ec2_not_in_inventory:
-      print ("* " + h)
+    print ("```")
+    print ("[")
+    print ("\t\"" + "\",\n\t\"".join(ec2_not_in_inventory) + "\"")
+    print ("]")
+    print ("```")
   else:
     print ("* なし")
+
   if len(ec2_not_in_inventory) != 0 or len(inventory_not_in_ec2) != 0:
     print ("\033[91m" + "差分を検知しました")
     print ("\033[m" + "")
