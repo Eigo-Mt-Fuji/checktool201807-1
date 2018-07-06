@@ -7,22 +7,8 @@ import ast
 base_key = sys.argv[1] # 'prod.children'
 inventory_file = sys.argv[2] # ./inventory.yml
 running_instance_file = sys.argv[3] # ./describe-instances.json
-hosts_json_key = "server_name"
+hosts_value_key = "server_name"
 dt_now = datetime.datetime.now()
-
-def is_json(value):
-
-    try:
-        data = json.dumps(value)
-        res = json.loads(data)
-
-        if res is None:
-          return False
-
-        return res
-    except (ValueError, TypeError, AttributeError) as e:
-        print(e)
-        return False
 
 def find_inventory_hosts_path(target_path, data, path_list):
   res = dparse(data, target_path, ".")
@@ -66,20 +52,19 @@ with open(inventory_file) as f:
     hosts = dparse(data, p, ".")
     for key in hosts.keys():
 
-      json_result = is_json(hosts.get(key))
-
-      if json_result is False:
+      if hosts.get(key) is None:
         print ("* " + p + "." + key)
         inventory_list.append(key)
 
       else:
-        server_name = json_result.get(hosts_json_key)
+        hosts_value = hosts.get(key)
+        server_name = hosts_value.get(hosts_value_key)
 
         if server_name is not None:
           inventory_list.append(server_name)
           print ("* " + p + "." + key + "." + server_name)
         else:
-          print ("\033[91m" + "エラー：hostsに想定した書式({'" + hosts_json_key + "': '<値>'})と異なるJSONが含まれています。" )
+          print ("\033[91m" + "エラー：hostsに想定した書式({'" + hosts_value_key + "': '<値>'})と異なる値が含まれています。" )
           print (hosts.get(key))
           print ("\033[m" + "")
           sys.exit(1)
