@@ -2,7 +2,6 @@ import sys
 import yaml
 import json
 import datetime
-import ast
 
 base_key = sys.argv[1] # 'prod.children'
 inventory_file = sys.argv[2] # ./inventory.yml
