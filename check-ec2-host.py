@@ -50,23 +50,8 @@ with open(inventory_file) as f:
   for p in out_hosts_path_list:
     hosts = dparse(data, p, ".")
     for key in hosts.keys():
-
-      if hosts.get(key) is None:
-        print ("* " + p + "." + key)
-        inventory_list.append(key)
-
-      else:
-        hosts_value = hosts.get(key)
-        server_name = hosts_value.get(hosts_value_key)
-
-        if server_name is not None:
-          inventory_list.append(server_name)
-          print ("* " + p + "." + key + "." + server_name)
-        else:
-          print ("\033[91m" + "エラー：hostsに想定した書式({'" + hosts_value_key + "': '<値>'})と異なる値が含まれています。" )
-          print (hosts.get(key))
-          print ("\033[m" + "")
-          sys.exit(1)
+      print ("* " + p + "." + key)
+      inventory_list.append(key)
 
 f.closed
 
