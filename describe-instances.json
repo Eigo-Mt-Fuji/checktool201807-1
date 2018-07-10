@@ -3,13 +3,12 @@
   "server2",
   "server3",
   "server4",
-  "test_1",
-  "test_2",
-  "test_3",
+  "api1",
+  "api2",
+  "api3",
   "api4",
   "api5",
   "batch1",
-  "proxy1",
-  "invalid-host"
+  "proxy1"
 ]
 
